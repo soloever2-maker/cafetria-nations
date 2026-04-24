@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { CategoryTabs } from "@/components/menu/category-tabs"
 import { MenuItemCard } from "@/components/menu/menu-item-card"
 import { CartSheet } from "@/components/menu/cart-sheet"
-import { useCart, getCartTotal, getCartItemCount } from "@/lib/cart-store"
+import { useCart } from "@/lib/cart-store"
 import { ArrowRight, ShoppingBag, Loader2 } from "lucide-react"
 import type { Category, MenuItem } from "@/lib/types"
 
@@ -25,8 +25,9 @@ function MenuContent() {
   const [loading, setLoading]       = useState(true)
   const [activeCategory, setActiveCategory] = useState("drinks")
   const [cartOpen, setCartOpen]     = useState(false)
-  const itemCount = getCartItemCount()
-  const total     = getCartTotal()
+  const cartItems = useCart()
+  const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
+  const total     = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
 
   const employeeId   = searchParams.get("id")   ?? "EMP001"
   const employeeName = searchParams.get("name") ?? "موظف"
