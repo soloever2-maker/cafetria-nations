@@ -42,7 +42,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
 
       <div className="flex items-center justify-between mt-auto pt-2">
         <span className="font-bold text-primary text-lg">
-          {item.price} <span className="text-xs">ر.س</span>
+          {item.price} <span className="text-xs">ج.م</span>
         </span>
 
         {item.available && (
