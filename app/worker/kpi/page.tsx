@@ -188,7 +188,7 @@ export default function WorkerKPIPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 rounded-lg bg-accent/10">
                     <p className="text-2xl font-bold text-accent">
-                      {stats?.totalRevenue?.toFixed(2) || "0.00"} ر.س
+                      {stats?.totalRevenue?.toFixed(2) || "0.00"} ج.م
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       إجمالي الإيرادات
@@ -196,7 +196,7 @@ export default function WorkerKPIPage() {
                   </div>
                   <div className="text-center p-3 rounded-lg bg-primary/10">
                     <p className="text-2xl font-bold text-primary">
-                      {stats?.averageOrderValue?.toFixed(2) || "0.00"} ر.س
+                      {stats?.averageOrderValue?.toFixed(2) || "0.00"} ج.م
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       متوسط قيمة الطلب
