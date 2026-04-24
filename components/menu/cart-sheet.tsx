@@ -61,7 +61,7 @@ export function CartSheet({ open, onOpenChange, employeeId, employeeName }: Cart
       }
 
       const data = await response.json()
-      const orderId = data.order?.id
+      const orderId = data.orderId
       
       setOrderSubmitted(true)
       clearCart()
