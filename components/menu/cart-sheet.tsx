@@ -136,11 +136,11 @@ export function CartSheet({ open, onOpenChange, employeeId, employeeName }: Cart
                           {item.name}
                         </h4>
                         <p className="text-xs text-muted-foreground">
-                          {item.price} ر.س × {item.quantity}
+                          {item.price}ج.م × {item.quantity}
                         </p>
                       </div>
                       <span className="font-bold text-primary">
-                        {item.price * item.quantity} ر.س
+                        {item.price * item.quantity}ج.م
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
