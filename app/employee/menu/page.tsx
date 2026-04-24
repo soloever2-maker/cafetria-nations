@@ -78,7 +78,13 @@ function MenuContent() {
             <span className="text-sm">خروج</span>
           </Link>
           <h1 className="font-bold text-lg">كافتيريا نيشنز</h1>
-          <div className="w-10" />
+          <Link
+            href={`/employee/order-history?id=${encodeURIComponent(employeeId)}&name=${encodeURIComponent(employeeName)}`}
+            className="text-primary-foreground/80 hover:text-primary-foreground transition-colors p-1"
+            title="سجل طلباتي"
+          >
+            <ShoppingBag className="w-5 h-5" />
+          </Link>
         </div>
       </header>
 

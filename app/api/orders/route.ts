@@ -24,6 +24,11 @@ export async function GET(request: NextRequest) {
     query = query.eq("employee_id", employeeId)
   }
 
+  const from = searchParams.get("from")
+  const to   = searchParams.get("to")
+  if (from) query = query.gte("created_at", from)
+  if (to)   query = query.lte("created_at", to)
+
   const { data, error } = await query
 
   if (error) {

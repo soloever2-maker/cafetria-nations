@@ -12,32 +12,50 @@ import { ArrowRight, User } from "lucide-react"
 export default function EmployeeLoginPage() {
   const router = useRouter()
   const [employeeId, setEmployeeId] = useState("")
-  const [employeeName, setEmployeeName] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [isLoading, setIsLoading]   = useState(false)
+  const [error, setError]           = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    
-    if (!employeeId.trim() || !employeeName.trim()) {
-      setError("الرجاء إدخال جميع البيانات")
+
+    const id = employeeId.trim().toUpperCase()
+    if (!id) {
+      setError("الرجاء إدخال رقم الموظف")
       return
     }
 
     setIsLoading(true)
-    
-    // Simulate login (in real app, validate against database)
-    await new Promise((resolve) => setTimeout(resolve, 800))
-    
-    // Navigate to menu with employee info
-    router.push(`/employee/menu?id=${encodeURIComponent(employeeId)}&name=${encodeURIComponent(employeeName)}`)
+
+    try {
+      const res = await fetch(`/api/employees/${encodeURIComponent(id)}`)
+
+      if (res.status === 404) {
+        setError("رقم الموظف غير صحيح، تحقق وحاول مرة أخرى")
+        return
+      }
+
+      if (!res.ok) {
+        setError("حدث خطأ في الاتصال، حاول مرة أخرى")
+        return
+      }
+
+      const { employee } = await res.json()
+
+      router.push(
+        `/employee/menu?id=${encodeURIComponent(employee.id)}&name=${encodeURIComponent(employee.name)}&dept=${encodeURIComponent(employee.department ?? "")}`
+      )
+    } catch {
+      setError("حدث خطأ، حاول مرة أخرى")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <main className="min-h-screen flex flex-col p-6 bg-gradient-to-b from-primary/5 to-background">
-      <Link 
-        href="/" 
+      <Link
+        href="/"
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
       >
         <ArrowRight className="w-5 h-5" />
@@ -48,35 +66,30 @@ export default function EmployeeLoginPage() {
         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
           <User className="w-8 h-8 text-primary" />
         </div>
-        
+
         <h1 className="text-2xl font-bold text-primary mb-2">تسجيل دخول الموظف</h1>
         <p className="text-muted-foreground mb-8">Employee Login</p>
-        
+
         <form onSubmit={handleSubmit} className="w-full max-w-sm">
           <div className="p-6 bg-card rounded-xl shadow-lg border border-border">
-            <FieldGroup className="gap-4">
+            <FieldGroup>
               <Field>
                 <FieldLabel>رقم الموظف</FieldLabel>
                 <Input
                   type="text"
                   placeholder="مثال: EMP001"
                   value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value)}
-                  className="text-center text-lg"
+                  onChange={(e) => {
+                    setEmployeeId(e.target.value)
+                    if (error) setError("")
+                  }}
+                  className="text-center text-lg tracking-widest"
                   dir="ltr"
-                />
-              </Field>
-              <Field>
-                <FieldLabel>اسم الموظف</FieldLabel>
-                <Input
-                  type="text"
-                  placeholder="أدخل اسمك"
-                  value={employeeName}
-                  onChange={(e) => setEmployeeName(e.target.value)}
-                  className="text-center text-lg"
+                  autoComplete="off"
+                  autoFocus
                 />
                 {error && (
-                  <p className="text-sm text-destructive mt-1">{error}</p>
+                  <p className="text-sm text-destructive mt-2 text-center">{error}</p>
                 )}
               </Field>
             </FieldGroup>
@@ -90,7 +103,7 @@ export default function EmployeeLoginPage() {
               {isLoading ? (
                 <>
                   <Spinner className="w-4 h-4" />
-                  <span>جاري الدخول...</span>
+                  <span>جاري التحقق...</span>
                 </>
               ) : (
                 <span>دخول</span>
@@ -100,7 +113,7 @@ export default function EmployeeLoginPage() {
         </form>
 
         <p className="text-sm text-muted-foreground mt-6 text-center">
-          أدخل رقم الموظف الخاص بك للوصول إلى القائمة
+          أدخل رقم الموظف المكوّن من حروف وأرقام
         </p>
       </div>
     </main>

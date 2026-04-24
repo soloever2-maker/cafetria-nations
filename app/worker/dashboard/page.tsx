@@ -19,6 +19,7 @@ import {
   XCircle,
   Plus,
   BarChart3,
+  ShoppingBag,
   RefreshCw
 } from "lucide-react"
 import type { Order } from "@/lib/types"
@@ -110,6 +111,16 @@ export default function WorkerDashboardPage() {
             <p className="text-xs opacity-80">Worker Dashboard</p>
           </div>
           <div className="flex items-center gap-2">
+            <Link href="/worker/order-history">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+                title="سجل الطلبات"
+              >
+                <ShoppingBag className="w-5 h-5" />
+              </Button>
+            </Link>
             <Link href="/worker/kpi">
               <Button
                 variant="ghost"
