@@ -88,7 +88,7 @@ function MenuContent() {
               </Badge>
             </div>
             <span className="flex-1">عرض السلة</span>
-            <span className="font-bold">{total} ر.س</span>
+            <span className="font-bold">{total} ج.م</span>
           </Button>
         </div>
       )}
