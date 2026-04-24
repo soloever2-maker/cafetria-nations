@@ -110,7 +110,7 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
                 <span className="truncate">{item.name}</span>
               </div>
               <span className="text-sm text-muted-foreground shrink-0">
-                {item.price * item.quantity} ر.س
+                {item.price * item.quantity} ج.م
               </span>
             </div>
           ))}
@@ -127,7 +127,7 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
 
         <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
           <span className="text-muted-foreground">الإجمالي</span>
-          <span className="font-bold text-lg">{order.total} ر.س</span>
+          <span className="font-bold text-lg">{order.total} ج.م</span>
         </div>
       </CardContent>
 
