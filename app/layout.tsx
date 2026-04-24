@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Cairo } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
 const cairo = Cairo({ 
@@ -49,6 +50,7 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" className="bg-background">
       <body className={`${cairo.variable} font-sans antialiased`}>
         {children}
+        <Toaster />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
