@@ -223,18 +223,7 @@ export default function WorkerDashboardPage() {
         </div>
       </ScrollArea>
 
-      {/* Demo Button - For Testing */}
-      <div className="fixed bottom-6 left-6">
-        <Button
-          onClick={handleAddDemoOrder}
-          size="lg"
-          className="rounded-full shadow-lg gap-2"
-          variant="secondary"
-        >
-          <Plus className="w-5 h-5" />
-          <span className="hidden sm:inline">إضافة طلب تجريبي</span>
-        </Button>
-      </div>
+
     </div>
   )
 }
