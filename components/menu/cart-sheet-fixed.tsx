@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   Sheet,
   SheetContent,
@@ -36,6 +37,7 @@ export function CartSheet({ open, onOpenChange, employeeId, employeeName }: Cart
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderSubmitted, setOrderSubmitted] = useState(false)
   const total = getCartTotal()
+  const router = useRouter()
 
   const handleSubmitOrder = async () => {
     if (cartItems.length === 0) return
@@ -43,7 +45,6 @@ export function CartSheet({ open, onOpenChange, employeeId, employeeName }: Cart
     setIsSubmitting(true)
     
     try {
-      // Submit order via API
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,16 +59,23 @@ export function CartSheet({ open, onOpenChange, employeeId, employeeName }: Cart
       if (!response.ok) {
         throw new Error("Failed to create order")
       }
+
+      const data = await response.json()
+      const orderId = data.order?.id
       
       setOrderSubmitted(true)
-      
-      // Reset after showing success
+      clearCart()
+      setNotes("")
+
+      // Redirect to tracking page after 1.5 seconds
       setTimeout(() => {
-        clearCart()
-        setNotes("")
         setOrderSubmitted(false)
         onOpenChange(false)
-      }, 2000)
+        if (orderId) {
+          router.replace(`/employee/order/${orderId}`)
+        }
+      }, 1500)
+
     } catch (error) {
       console.error("Failed to submit order:", error)
     } finally {
@@ -85,7 +93,7 @@ export function CartSheet({ open, onOpenChange, employeeId, employeeName }: Cart
             </div>
             <h2 className="text-xl font-bold text-foreground">تم إرسال الطلب</h2>
             <p className="text-muted-foreground text-center">
-              سيتم تحضير طلبك قريباً
+              جاري تحويلك لمتابعة طلبك...
             </p>
           </div>
         </SheetContent>
@@ -136,11 +144,11 @@ export function CartSheet({ open, onOpenChange, employeeId, employeeName }: Cart
                           {item.name}
                         </h4>
                         <p className="text-xs text-muted-foreground">
-                          {item.price}ج.م × {item.quantity}
+                          {item.price} ج.م × {item.quantity}
                         </p>
                       </div>
                       <span className="font-bold text-primary">
-                        {item.price * item.quantity}ج.م
+                        {item.price * item.quantity} ج.م
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -201,7 +209,7 @@ export function CartSheet({ open, onOpenChange, employeeId, employeeName }: Cart
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">المجموع</span>
                   <span className="text-2xl font-bold text-primary">
-                    {total} <span className="text-sm">ر.س</span>
+                    {total} <span className="text-sm">ج.م</span>
                   </span>
                 </div>
                 <Button
@@ -216,7 +224,7 @@ export function CartSheet({ open, onOpenChange, employeeId, employeeName }: Cart
                       <span>جاري الإرسال...</span>
                     </>
                   ) : (
-                    <span>إرسال الطل��</span>
+                    <span>إرسال الطلب ☕</span>
                   )}
                 </Button>
                 <Button
