@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 
-// PATCH /api/sites/[id] — update name or toggle active
+type RouteParams = { params: Promise<{ id: string }> }
+
+// PATCH /api/sites/[id]
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
-    const body = await request.json()
+    const { id }  = await params
+    const body    = await request.json()
     const updates: Record<string, unknown> = {}
 
-    if (body.name    !== undefined) updates.name     = body.name
-    if (body.nameEn  !== undefined) updates.name_en  = body.nameEn
+    if (body.name     !== undefined) updates.name      = body.name
+    if (body.nameEn   !== undefined) updates.name_en   = body.nameEn
     if (body.isActive !== undefined) updates.is_active = body.isActive
 
     if (Object.keys(updates).length === 0) {
@@ -21,7 +24,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from("sites")
       .update(updates)
-      .eq("id", params.id)
+      .eq("id", id)
       .select()
       .single()
 
@@ -45,12 +48,14 @@ export async function PATCH(
 // DELETE /api/sites/[id]
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
+  const { id } = await params
+
   const { error } = await supabase
     .from("sites")
     .delete()
-    .eq("id", params.id)
+    .eq("id", id)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
