@@ -8,33 +8,41 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Spinner } from "@/components/ui/spinner"
 
 export default function HeroLoginPage() {
   const router = useRouter()
-  const [pin, setPin]         = useState("")
-  const [error, setError]     = useState("")
+  const [pin, setPin]             = useState("")
+  const [error, setError]         = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-
-    if (pin.length < 4) {
-      setError("الرجاء إدخال رمز PIN صالح")
-      return
-    }
+    if (pin.length < 4) { setError("الرجاء إدخال الباسورد"); return }
 
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 400))
+    try {
+      // Fetch hero password from settings
+      const res  = await fetch("/api/settings?key=hero_password")
+      const data = await res.json()
 
-    // Any 4+ digit PIN is accepted (generic access)
-    router.push("/hero/site-select")
-  }
+      if (!res.ok || !data.value) {
+        setError("حدث خطأ، حاول مرة أخرى")
+        return
+      }
 
-  const handlePinChange = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 6)
-    setPin(digits)
-    if (error) setError("")
+      if (pin !== data.value) {
+        setError("الباسورد غلط، حاول تاني")
+        return
+      }
+
+      router.push("/hero/site-select")
+    } catch {
+      setError("حدث خطأ في الاتصال")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -48,7 +56,6 @@ export default function HeroLoginPage() {
       </Link>
 
       <div className="flex-1 flex flex-col items-center justify-center">
-        {/* Icon with star */}
         <div className="relative mb-6">
           <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center">
             <KeyRound className="w-8 h-8 text-accent" />
@@ -64,27 +71,30 @@ export default function HeroLoginPage() {
         <Card className="w-full max-w-sm">
           <CardHeader className="pb-4">
             <p className="text-sm text-muted-foreground text-center">
-              أدخل رمز PIN الخاص بك للدخول
+              أدخل الباسورد للدخول
             </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit}>
               <FieldGroup>
                 <Field>
-                  <FieldLabel htmlFor="pin">رمز PIN</FieldLabel>
+                  <FieldLabel htmlFor="pin">الباسورد</FieldLabel>
                   <Input
                     id="pin"
                     type="password"
                     inputMode="numeric"
-                    pattern="[0-9]*"
                     placeholder="••••••"
                     value={pin}
-                    onChange={(e) => handlePinChange(e.target.value)}
+                    onChange={(e) => {
+                      setPin(e.target.value.replace(/\D/g, "").slice(0, 8))
+                      setError("")
+                    }}
                     className="text-center text-2xl tracking-[0.5em] font-mono"
                     autoComplete="off"
+                    autoFocus
                   />
                   {error && (
-                    <p className="text-sm text-destructive mt-1">{error}</p>
+                    <p className="text-sm text-destructive mt-1 text-center">{error}</p>
                   )}
                 </Field>
 
@@ -95,12 +105,9 @@ export default function HeroLoginPage() {
                   disabled={isLoading || pin.length < 4}
                 >
                   {isLoading ? (
-                    <span className="animate-pulse">جاري الدخول...</span>
+                    <><Spinner className="w-4 h-4" /><span>جاري التحقق...</span></>
                   ) : (
-                    <>
-                      <LogIn className="w-5 h-5" />
-                      دخول
-                    </>
+                    <><LogIn className="w-5 h-5" />دخول</>
                   )}
                 </Button>
               </FieldGroup>
