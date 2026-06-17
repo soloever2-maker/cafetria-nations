@@ -13,18 +13,9 @@ export async function GET(request: NextRequest) {
     .select(`*, order_items (*)`)
     .order("created_at", { ascending: false })
 
-  if (status) {
-    query = query.in("status", status.split(","))
-  }
-
-  if (employeeId) {
-    query = query.eq("employee_id", employeeId)
-  }
-
-  // Filter by site — heroes only see their site's orders
-  if (siteId) {
-    query = query.eq("site_id", siteId)
-  }
+  if (status)     query = query.in("status", status.split(","))
+  if (employeeId) query = query.eq("employee_id", employeeId)
+  if (siteId)     query = query.eq("site_id", siteId)
 
   const from = searchParams.get("from")
   const to   = searchParams.get("to")
@@ -32,10 +23,7 @@ export async function GET(request: NextRequest) {
   if (to)   query = query.lte("created_at", to)
 
   const { data, error } = await query
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   const orders = (data || []).map((order: DBOrder & { order_items: DBOrderItem[] }) => ({
     id:           order.id,
@@ -44,7 +32,6 @@ export async function GET(request: NextRequest) {
     department:   order.department,
     workerId:     order.worker_id,
     siteId:       order.site_id,
-    siteName:     order.site_name,
     status:       order.status,
     notes:        order.notes,
     createdAt:    order.created_at,
@@ -66,17 +53,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { items, employeeId, employeeName, department, notes, siteId, siteName } = body
+    const { items, employeeId, employeeName, department, notes, siteId } = body
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    if (!items || !Array.isArray(items) || items.length === 0)
       return NextResponse.json({ error: "Items are required" }, { status: 400 })
-    }
 
-    if (!employeeId || !employeeName) {
+    if (!employeeId || !employeeName)
       return NextResponse.json({ error: "Employee info required" }, { status: 400 })
-    }
 
-    // Create the order (include site if provided)
     const { data: order, error: orderError } = await supabase
       .from("orders")
       .insert({
@@ -84,18 +68,15 @@ export async function POST(request: NextRequest) {
         employee_name: employeeName,
         department:    department || null,
         site_id:       siteId     || null,
-        site_name:     siteName   || null,
         status:        "pending",
         notes:         notes      || null,
       })
       .select()
       .single()
 
-    if (orderError) {
+    if (orderError)
       return NextResponse.json({ error: orderError.message }, { status: 500 })
-    }
 
-    // Create order items
     const orderItems = items.map((item: { id: string; name: string; quantity: number }) => ({
       order_id:  order.id,
       item_id:   item.id,
@@ -103,9 +84,7 @@ export async function POST(request: NextRequest) {
       quantity:  item.quantity,
     }))
 
-    const { error: itemsError } = await supabase
-      .from("order_items")
-      .insert(orderItems)
+    const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
 
     if (itemsError) {
       await supabase.from("orders").delete().eq("id", order.id)
